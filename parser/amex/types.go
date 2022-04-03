@@ -25,7 +25,9 @@ type RawTransaction struct {
 	Category `csv:"Category"`
 }
 
-type Date time.Time
+type Date struct {
+	time.Time
+}
 
 func (d *Date) UnmarshalText(data []byte) error {
 	t, err := time.Parse("01/02/2006", string(data))
@@ -33,7 +35,7 @@ func (d *Date) UnmarshalText(data []byte) error {
 		return err
 	}
 
-	d = t
+	d.Time = t
 	return nil
 }
 

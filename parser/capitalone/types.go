@@ -12,7 +12,9 @@ type RawTransaction struct {
 	Credit          float64 `csv:"Credit,omitempty"`
 }
 
-type Date time.Time
+type Date struct {
+	time.Time
+}
 
 func (d *Date) UnmarshalText(data []byte) error {
 	t, err := time.Parse("2006-01-02", string(data))
@@ -20,6 +22,6 @@ func (d *Date) UnmarshalText(data []byte) error {
 		return err
 	}
 
-	*d = Date(t)
+	d.Time = t
 	return nil
 }
