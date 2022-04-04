@@ -7,11 +7,11 @@ import (
 )
 
 type RawTransaction struct {
-	Date                     Date    `csv:"Date"`
+	DateField                Date    `csv:"Date"`
 	Description              string  `csv:"Description"`
 	CardMember               string  `csv:"Card Member"`
 	AccountNumber            string  `csv:"Account #"`
-	Amount                   float64 `csv:"Amount"`
+	AmountField              float64 `csv:"Amount"`
 	ExtendedDetails          string  `csv:"Extended Details"`
 	AppearsOnYourStatementAs string  `csv:"Appears On Your Statement As"`
 	Address                  string  `csv:"Address"`
