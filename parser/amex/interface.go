@@ -14,7 +14,7 @@ func (tx RawTransaction) Amount() float64 {
 	return tx.AmountField
 }
 
-func (tx RawTransaction) User() string {
+func (tx RawTransaction) Card() string {
 	return tx.AccountNumber
 }
 

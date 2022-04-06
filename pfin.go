@@ -11,7 +11,7 @@ const ISO8601 = "2006-01-02"
 type Transaction interface {
 	Date() time.Time
 	Amount() float64
-	User() string
+	Card() string
 	Name() string
 
 	// should be pfin.TxString
@@ -27,7 +27,7 @@ func TxString(tx Transaction, sep string) string {
 	b.WriteString(strconv.FormatFloat(tx.Amount(), 'f', 2, 64))
 	b.WriteString(sep)
 
-	b.WriteString(tx.User())
+	b.WriteString(tx.Card())
 	b.WriteString(sep)
 
 	b.WriteString(tx.Name())

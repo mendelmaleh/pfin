@@ -28,8 +28,18 @@ type Config struct {
 }
 
 type Account struct {
-	Path  string
-	Users map[string]string
+	Cards map[string]string
+}
+
+func (a Account) User(card string) string {
+	for k, v := range a.Cards {
+		if v == card {
+			return k
+		}
+	}
+
+	fmt.Println(a.Cards)
+	panic("missing card " + card)
 }
 
 func main() {
