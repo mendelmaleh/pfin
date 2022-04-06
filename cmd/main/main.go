@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"sort"
@@ -42,6 +41,13 @@ func (a Account) User(card string) string {
 	panic("missing card " + card)
 }
 
+type Transaction struct {
+	pfin.Transaction
+
+	Account string
+	User    string
+}
+
 func main() {
 	cwd, err := os.Getwd()
 	if err != nil {
@@ -76,7 +82,7 @@ func main() {
 		"capitalone": capitalone.Parse,
 	}
 
-	var txns []pfin.Transaction
+	var txns []Transaction
 	for _, name := range config.Accounts {
 		fn, ok := parsefns[name]
 		if !ok {
@@ -89,7 +95,13 @@ func main() {
 			panic(err)
 		}
 
-		txns = append(txns, tx...)
+		for _, v := range tx {
+			txns = append(txns, Transaction{
+				Transaction: v,
+				Account:     name,
+				User:        config.Account[name].User(v.Card()),
+			})
+		}
 	}
 
 	// sort oldest to newest
@@ -101,9 +113,9 @@ func main() {
 	defer tw.Flush()
 
 	for _, tx := range txns {
-		io.WriteString(tw, pfin.TxString(tx, "\t"))
-		tw.Write([]byte{'\n'})
-		// fmt.Fprintf(tw, "%s\t%.2f\t%s\n", tx.Date().Format(pfin.ISO8601), tx.Amount(), tx.Name())
+		// io.WriteString(tw, pfin.TxString(tx, "\t"))
+		// tw.Write([]byte{'\n'})
+		fmt.Fprintf(tw, "%s\t%.2f\t%s\t%s\t%s\n", tx.Date().Format(pfin.ISO8601), tx.Amount(), tx.Account, tx.User, tx.Name())
 		// fmt.Printf("%+v\n", v)
 		// spew.Dump(v)
 	}
