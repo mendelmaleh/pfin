@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"sort"
@@ -90,7 +91,9 @@ func main() {
 	defer tw.Flush()
 
 	for _, tx := range txns {
-		fmt.Fprintf(tw, "%s\t%.2f\t%s\n", tx.Date().Format(pfin.ISO8601), tx.Amount(), tx.Name())
+		io.WriteString(tw, pfin.TxString(tx, "\t"))
+		tw.Write([]byte{'\n'})
+		// fmt.Fprintf(tw, "%s\t%.2f\t%s\n", tx.Date().Format(pfin.ISO8601), tx.Amount(), tx.Name())
 		// fmt.Printf("%+v\n", v)
 		// spew.Dump(v)
 	}

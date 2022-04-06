@@ -26,6 +26,10 @@ func (tx RawTransaction) Amount() float64 {
 	return tx.Debit
 }
 
+func (tx RawTransaction) User() string {
+	return tx.CardNumber
+}
+
 func (tx RawTransaction) Name() string {
 	return tx.Description
 }

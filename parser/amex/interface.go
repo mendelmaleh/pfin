@@ -14,6 +14,10 @@ func (tx RawTransaction) Amount() float64 {
 	return tx.AmountField
 }
 
+func (tx RawTransaction) User() string {
+	return tx.AccountNumber
+}
+
 func (tx RawTransaction) Name() string {
 	return tx.Description
 }
