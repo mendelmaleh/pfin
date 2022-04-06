@@ -11,6 +11,10 @@ import (
 func ParseDir(path string, parsefn func([]byte, *[]pfin.Transaction) error) ([]pfin.Transaction, error) {
 	var txns []pfin.Transaction
 
+	if path[len(path)-1] != filepath.Separator {
+		path += string(filepath.Separator)
+	}
+
 	matches, err := filepath.Glob(path + "*.csv")
 	if err != nil {
 		return txns, err
