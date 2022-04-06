@@ -12,7 +12,7 @@ func Parse(data []byte, txns *[]pfin.Transaction) error {
 	}
 
 	// reverse order so it's chronological
-	for i := len(raw) - 1; i != 0; i-- {
+	for i := len(raw) - 1; i != -1; i-- {
 		*txns = append(*txns, raw[i])
 	}
 
