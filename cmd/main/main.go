@@ -9,6 +9,7 @@ import (
 
 	"git.sr.ht/~mendelmaleh/pfin"
 	"git.sr.ht/~mendelmaleh/pfin/parser/amex"
+	"git.sr.ht/~mendelmaleh/pfin/parser/bofa"
 	"git.sr.ht/~mendelmaleh/pfin/parser/capitalone"
 	"git.sr.ht/~mendelmaleh/pfin/parser/util"
 	"github.com/pelletier/go-toml/v2"
@@ -31,6 +32,11 @@ type Account struct {
 }
 
 func (a Account) User(card string) string {
+	// some statements don't report card/user
+	if card == "-" {
+		return card
+	}
+
 	for k, v := range a.Cards {
 		if v == card {
 			return k
@@ -77,8 +83,8 @@ func main() {
 
 	// parsing functions, key to fn
 	parsefns := map[string]func([]byte, *[]pfin.Transaction) error{
-		"amex": amex.Parse,
-		// "bofa":       bofa.Parse,
+		"amex":       amex.Parse,
+		"bofa":       bofa.Parse,
 		"capitalone": capitalone.Parse,
 	}
 
