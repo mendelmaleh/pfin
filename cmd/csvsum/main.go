@@ -1,15 +1,67 @@
 package main
 
 import (
+	"bytes"
 	"encoding/csv"
+	"flag"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"strconv"
+
+	"github.com/davecgh/go-spew/spew"
 )
 
+type Opts struct {
+	Field   string
+	Comma   string
+	Comment string
+	Trim    bool
+	Untab   bool
+
+	PSV bool
+}
+
 func main() {
-	r := csv.NewReader(os.Stdin)
+	// flags
+	var opts Opts
+
+	flag.StringVar(&opts.Field, "field", "", "column to sum")
+	flag.StringVar(&opts.Comma, "comma", ",", "column separator")
+	flag.StringVar(&opts.Comment, "comment", "#", "column separator")
+	flag.BoolVar(&opts.Trim, "trim", false, "trim leading space")
+	flag.BoolVar(&opts.Untab, "untab", false, "remove tabs before parsing")
+
+	// presets
+	flag.BoolVar(&opts.PSV, "psv", false, "use psv preset")
+
+	flag.Parse()
+
+	if opts.PSV {
+		opts.Field = "amount"
+		opts.Comma = "|"
+		opts.Comment = "-"
+		opts.Trim = true
+		opts.Untab = true
+	}
+
+	// data
+	data, err := ioutil.ReadAll(os.Stdin)
+	if err != nil {
+		panic(err)
+	}
+
+	// untab before parsing
+	if opts.Untab {
+		data = bytes.ReplaceAll(data, []byte{'\t'}, []byte{})
+	}
+
+	// csv parser
+	r := csv.NewReader(bytes.NewReader(data))
+	r.Comma = []rune(opts.Comma)[0]
+	r.Comment = []rune(opts.Comment)[0]
+	r.TrimLeadingSpace = opts.Trim
 
 	// get header
 	header, err := r.Read()
@@ -21,13 +73,14 @@ func main() {
 	var pos int = -1
 
 	for i, v := range header {
-		if v == "Credit" {
+		if v == opts.Field {
 			pos = i
 			break
 		}
 	}
 
 	if pos == -1 {
+		spew.Dump(opts)
 		panic("can't find position in header")
 	}
 
