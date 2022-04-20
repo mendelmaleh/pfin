@@ -21,6 +21,7 @@ type Opts struct {
 	Untab   bool
 
 	PSV bool
+	TSV bool
 }
 
 func main() {
@@ -35,6 +36,7 @@ func main() {
 
 	// presets
 	flag.BoolVar(&opts.PSV, "psv", false, "use psv preset")
+	flag.BoolVar(&opts.TSV, "tsv", false, "use tsv preset")
 
 	flag.Parse()
 
@@ -44,6 +46,11 @@ func main() {
 		opts.Comment = "-"
 		opts.Trim = true
 		opts.Untab = true
+	}
+
+	if opts.TSV {
+		opts.Comma = "\t"
+		opts.Comment = "-"
 	}
 
 	// data
