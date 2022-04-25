@@ -8,14 +8,19 @@ import (
 	"git.sr.ht/~mendelmaleh/pfin"
 )
 
-func ParseDir(path string, parsefn func([]byte, *[]pfin.Transaction) error) ([]pfin.Transaction, error) {
+func ParseDir(parser, path string) ([]pfin.Transaction, error) {
 	var txns []pfin.Transaction
+
+	filetype, err := pfin.Filetype(parser)
+	if err != nil {
+		return txns, err
+	}
 
 	if path[len(path)-1] != filepath.Separator {
 		path += string(filepath.Separator)
 	}
 
-	matches, err := filepath.Glob(path + "*.csv")
+	matches, err := filepath.Glob(path + "*." + filetype)
 	if err != nil {
 		return txns, err
 	}
@@ -29,9 +34,13 @@ func ParseDir(path string, parsefn func([]byte, *[]pfin.Transaction) error) ([]p
 			return txns, err
 		}
 
-		if err := parsefn(file, &txns); err != nil {
+		tx, err := pfin.Parse(parser, file)
+		if err != nil {
 			return txns, err
 		}
+
+		// TODO: use copy(), consider parallelizing
+		txns = append(txns, tx...)
 	}
 
 	return txns, nil
