@@ -34,7 +34,18 @@ func (a Account) User(card string) string {
 	return card
 }
 
+// ParseConfig will use default config location if path is empty
 func ParseConfig(path string) (config Config, err error) {
+	// default config path
+	if path == "" {
+		configpath, err := os.UserConfigDir()
+		if err != nil {
+			return config, err
+		}
+
+		path = filepath.Join(configpath, "pfin", "config.toml")
+	}
+
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return

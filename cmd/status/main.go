@@ -17,12 +17,7 @@ import (
 
 func main() {
 	// parse config
-	configpath, err := os.UserConfigDir()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	config, err := pfin.ParseConfig(filepath.Join(configpath, "pfin", "config.toml"))
+	config, err := pfin.ParseConfig("")
 	if err != nil {
 		log.Fatal(err)
 	}
