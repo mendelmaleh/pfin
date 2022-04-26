@@ -16,7 +16,7 @@ func (Parser) Filetype() string {
 }
 
 func (Parser) Parse(acc pfin.Account, data []byte) (txns []pfin.Transaction, err error) {
-	var raw []RawTransaction
+	var raw []Transaction
 	if err = csvutil.Unmarshal(data, &raw); err != nil {
 		return
 	}
@@ -28,7 +28,7 @@ func (Parser) Parse(acc pfin.Account, data []byte) (txns []pfin.Transaction, err
 	for i := 0; i < length; i++ {
 		v := raw[length-i-1]
 
-		v.UserField = acc.User(v.Card())
+		v.Fields.User = acc.User(v.Card())
 		txns[i] = v
 	}
 

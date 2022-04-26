@@ -6,26 +6,26 @@ import (
 	"git.sr.ht/~mendelmaleh/pfin"
 )
 
-func (tx RawTransaction) Date() time.Time {
-	return tx.Fields.Date.Time
+func (tx Transaction) Date() time.Time {
+	return tx.Raw.Date.Time
 }
 
-func (tx RawTransaction) Amount() float64 {
-	return tx.Fields.Amount
+func (tx Transaction) Amount() float64 {
+	return tx.Raw.Amount
 }
 
-func (tx RawTransaction) Name() string {
-	return tx.Description
+func (tx Transaction) Name() string {
+	return tx.Raw.Description
 }
 
-func (tx RawTransaction) Card() string {
+func (tx Transaction) Card() string {
 	return ""
 }
 
-func (tx RawTransaction) User() string {
-	return tx.UserField
+func (tx Transaction) User() string {
+	return tx.Fields.User
 }
 
-func (tx RawTransaction) String() string {
+func (tx Transaction) String() string {
 	return pfin.TxString(tx, " ")
 }

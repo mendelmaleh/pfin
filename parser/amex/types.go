@@ -6,7 +6,16 @@ import (
 	"time"
 )
 
+type Transaction struct {
+	Fields // computed fields
+	Raw    // csv fields
+}
+
 type Fields struct {
+	User string
+}
+
+type Raw struct {
 	Date                     Date    `csv:"Date"`
 	Description              string  `csv:"Description"`
 	CardMember               string  `csv:"Card Member"`
@@ -23,11 +32,6 @@ type Fields struct {
 	Reference string `csv:"Reference"`
 
 	Category `csv:"Category"`
-}
-
-type RawTransaction struct {
-	Fields
-	UserField string
 }
 
 type Date struct {

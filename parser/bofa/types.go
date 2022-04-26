@@ -2,12 +2,16 @@ package bofa
 
 import "time"
 
-type RawTransaction struct {
-	Fields
-	UserField string
+type Transaction struct {
+	Fields // computed fields
+	Raw    // csv fields
 }
 
 type Fields struct {
+	User string
+}
+
+type Raw struct {
 	Date           Date    `csv:"Date"`
 	Description    string  `csv:"Description"`
 	Amount         float64 `csv:"Amount,omitempty"`

@@ -22,14 +22,14 @@ func (Parser) Parse(acc pfin.Account, data []byte) (txns []pfin.Transaction, err
 	parts := bytes.Split(data, []byte("\r\n\r\n"))
 	data = parts[1]
 
-	var raw []RawTransaction
+	var raw []Transaction
 	if err = csvutil.Unmarshal(data, &raw); err != nil {
 		return
 	}
 
 	txns = make([]pfin.Transaction, len(raw))
 	for i, v := range raw {
-		v.UserField = acc.User(v.Card())
+		v.Fields.User = acc.User(v.Card())
 		txns[i] = v
 	}
 

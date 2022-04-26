@@ -2,12 +2,16 @@ package capitalone
 
 import "git.sr.ht/~mendelmaleh/pfin/parser/util"
 
-type RawTransaction struct {
-	Fields
-	UserField string
+type Transaction struct {
+	Fields // computed fields, namespaced so they don't conflict with the interface methods
+	Raw    // raw fields from the csv
 }
 
 type Fields struct {
+	User string
+}
+
+type Raw struct {
 	TransactionDate util.Date `csv:"Transaction Date"`
 	PostedDate      util.Date `csv:"Posted Date"`
 	CardNumber      string    `csv:"Card No."`

@@ -16,7 +16,7 @@ date    	amount	media	description
 2022-04-26	31.41	card	some purchase
 `)
 
-	txns := []RawTransaction{{Fields: Fields{
+	txns := []Transaction{{Raw: Raw{
 		Date:        util.Date{time.Date(2022, time.April, 26, 0, 0, 0, 0, time.UTC)},
 		Amount:      31.41,
 		Media:       "card",

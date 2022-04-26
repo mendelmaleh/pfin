@@ -27,14 +27,14 @@ func (Parser) Parse(acc pfin.Account, data []byte) (txns []pfin.Transaction, err
 	txns = make([]pfin.Transaction, len(raw))
 	for i, v := range raw {
 		// there is no card/user data, so use default
-		v.UserField = acc.User("")
+		v.Fields.User = acc.User("")
 		txns[i] = v
 	}
 
 	return
 }
 
-func Parse(data []byte) (raw []RawTransaction, err error) {
+func Parse(data []byte) (raw []Transaction, err error) {
 	r := csv.NewReader(bytes.NewReader(data))
 	r.Comma = '\t'
 	r.Comment = '-'

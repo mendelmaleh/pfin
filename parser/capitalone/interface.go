@@ -7,11 +7,11 @@ import (
 	"git.sr.ht/~mendelmaleh/pfin"
 )
 
-func (tx RawTransaction) Date() time.Time {
-	return tx.TransactionDate.Time
+func (tx Transaction) Date() time.Time {
+	return tx.Raw.TransactionDate.Time
 }
 
-func (tx RawTransaction) Amount() float64 {
+func (tx Transaction) Amount() float64 {
 	if tx.Debit != 0 {
 		return tx.Debit
 	}
@@ -26,18 +26,18 @@ func (tx RawTransaction) Amount() float64 {
 	return tx.Debit
 }
 
-func (tx RawTransaction) Name() string {
-	return tx.Description
+func (tx Transaction) Name() string {
+	return tx.Raw.Description
 }
 
-func (tx RawTransaction) Card() string {
-	return tx.CardNumber
+func (tx Transaction) Card() string {
+	return tx.Raw.CardNumber
 }
 
-func (tx RawTransaction) User() string {
-	return tx.UserField
+func (tx Transaction) User() string {
+	return tx.Fields.User
 }
 
-func (tx RawTransaction) String() string {
+func (tx Transaction) String() string {
 	return pfin.TxString(tx, " ")
 }
