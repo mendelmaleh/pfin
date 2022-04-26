@@ -58,20 +58,14 @@ func ParseConfig(path string) (config Config, err error) {
 	// make root filepath absolute
 	config.Pfin.Root = filepath.Clean(filepath.Join(filepath.Dir(path), config.Pfin.Root))
 
-	// make a slice of account keys
-	// TODO: figure out where/why (just determinism?)
-	/*
-		for k, v := range config.Account {
-			// set type to name if not set
-			if v.Type == "" {
-				v.Type = k
-				config.Account[k] = v
-			}
-
-			// config.Accounts = append(config.Accounts, k)
+	// set type to name if not set
+	for k, v := range config.Account {
+		if v.Type == "" {
+			v.Type = k
 		}
-	*/
-	// sort.Strings(config.Accounts)
+
+		config.Account[k] = v
+	}
 
 	return
 }
