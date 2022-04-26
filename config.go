@@ -17,21 +17,23 @@ type Config struct {
 }
 
 type Account struct {
-	// parser type
+	// parser type, inherited from account name if unset
 	Type string
+
+	// default user, inherited from config.Pfin.User if unset
+	DefaultUser string
 
 	// map of users to card identifier
 	Users map[string]string
+	Cards map[string]string
 }
 
 func (a Account) User(card string) string {
-	for k, v := range a.Users {
-		if v == card {
-			return k
-		}
+	if user, ok := a.Cards[card]; ok {
+		return user
 	}
 
-	return card
+	return a.DefaultUser
 }
 
 // ParseConfig will use default config location if path is empty
@@ -58,10 +60,21 @@ func ParseConfig(path string) (config Config, err error) {
 	// make root filepath absolute
 	config.Pfin.Root = filepath.Clean(filepath.Join(filepath.Dir(path), config.Pfin.Root))
 
-	// set type to name if not set
 	for k, v := range config.Account {
+		// set type to name if unset
 		if v.Type == "" {
 			v.Type = k
+		}
+
+		// set default user if unset
+		if v.DefaultUser == "" {
+			v.DefaultUser = config.Pfin.User
+		}
+
+		// set card to user map
+		v.Cards = make(map[string]string)
+		for user, card := range v.Users {
+			v.Cards[card] = user
 		}
 
 		config.Account[k] = v
