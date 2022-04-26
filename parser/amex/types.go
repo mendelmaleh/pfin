@@ -6,12 +6,12 @@ import (
 	"time"
 )
 
-type RawTransaction struct {
-	DateField                Date    `csv:"Date"`
+type Fields struct {
+	Date                     Date    `csv:"Date"`
 	Description              string  `csv:"Description"`
 	CardMember               string  `csv:"Card Member"`
 	AccountNumber            string  `csv:"Account #"`
-	AmountField              float64 `csv:"Amount"`
+	Amount                   float64 `csv:"Amount"`
 	ExtendedDetails          string  `csv:"Extended Details"`
 	AppearsOnYourStatementAs string  `csv:"Appears On Your Statement As"`
 	Address                  string  `csv:"Address"`
@@ -23,6 +23,11 @@ type RawTransaction struct {
 	Reference string `csv:"Reference"`
 
 	Category `csv:"Category"`
+}
+
+type RawTransaction struct {
+	Fields
+	UserField string
 }
 
 type Date struct {

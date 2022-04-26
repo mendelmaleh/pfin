@@ -17,7 +17,7 @@ func (Parser) Filetype() string {
 	return "csv"
 }
 
-func (Parser) Parse(data []byte) (txns []pfin.Transaction, err error) {
+func (Parser) Parse(acc pfin.Account, data []byte) (txns []pfin.Transaction, err error) {
 	// bofa csv statements have two "tables" in them, the first is a summary, the second is the transactions.
 	parts := bytes.Split(data, []byte("\r\n\r\n"))
 	data = parts[1]
@@ -29,6 +29,7 @@ func (Parser) Parse(data []byte) (txns []pfin.Transaction, err error) {
 
 	txns = make([]pfin.Transaction, len(raw))
 	for i, v := range raw {
+		v.UserField = acc.User(v.Card())
 		txns[i] = v
 	}
 

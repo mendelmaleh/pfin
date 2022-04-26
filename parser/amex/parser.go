@@ -15,7 +15,7 @@ func (Parser) Filetype() string {
 	return "csv"
 }
 
-func (Parser) Parse(data []byte) (txns []pfin.Transaction, err error) {
+func (Parser) Parse(acc pfin.Account, data []byte) (txns []pfin.Transaction, err error) {
 	var raw []RawTransaction
 	if err = csvutil.Unmarshal(data, &raw); err != nil {
 		return
@@ -26,7 +26,10 @@ func (Parser) Parse(data []byte) (txns []pfin.Transaction, err error) {
 
 	// reverse order so it's chronological
 	for i := 0; i < length; i++ {
-		txns[i] = raw[length-i-1]
+		v := raw[length-i-1]
+
+		v.UserField = acc.User(v.Card())
+		txns[i] = v
 	}
 
 	return

@@ -3,9 +3,14 @@ package bofa
 import "time"
 
 type RawTransaction struct {
-	DateField      Date    `csv:"Date"`
+	Fields
+	UserField string
+}
+
+type Fields struct {
+	Date           Date    `csv:"Date"`
 	Description    string  `csv:"Description"`
-	AmountField    float64 `csv:"Amount,omitempty"`
+	Amount         float64 `csv:"Amount,omitempty"`
 	RunningBalance float64 `csv:"Running Bal."`
 }
 
