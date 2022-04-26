@@ -1,12 +1,21 @@
 package util
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
 
 	"git.sr.ht/~mendelmaleh/pfin"
 )
+
+type ErrNoMatches struct {
+	path string
+}
+
+func (e ErrNoMatches) Error() string {
+	return fmt.Sprintf("pfin/parser/util: no matches for path %q", e.path)
+}
 
 func ParseDir(parser, path string) ([]pfin.Transaction, error) {
 	var txns []pfin.Transaction
@@ -23,6 +32,10 @@ func ParseDir(parser, path string) ([]pfin.Transaction, error) {
 	matches, err := filepath.Glob(path + "*." + filetype)
 	if err != nil {
 		return txns, err
+	}
+
+	if len(matches) == 0 {
+		return txns, ErrNoMatches{path}
 	}
 
 	// sort oldest first
