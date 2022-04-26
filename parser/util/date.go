@@ -16,3 +16,17 @@ func (d *DateISO) UnmarshalText(data []byte) error {
 	d.Time = t
 	return nil
 }
+
+type DateUS struct {
+	time.Time
+}
+
+func (d *DateUS) UnmarshalText(data []byte) error {
+	t, err := time.Parse("01/02/2006", string(data))
+	if err != nil {
+		return err
+	}
+
+	d.Time = t
+	return nil
+}
