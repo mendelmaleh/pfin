@@ -12,8 +12,8 @@ type Fields struct {
 }
 
 type Raw struct {
-	Date        util.Date `csv:"date    "`
-	Amount      float64   `csv:"amount"`
-	Media       string    `csv:"media"`
-	Description string    `csv:"description"`
+	Date        util.DateISO `csv:"date    "`
+	Amount      float64      `csv:"amount"`
+	Media       string       `csv:"media"`
+	Description string       `csv:"description"`
 }

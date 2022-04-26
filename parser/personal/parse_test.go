@@ -17,7 +17,7 @@ date    	amount	media	description
 `)
 
 	txns := []Transaction{{Raw: Raw{
-		Date:        util.Date{time.Date(2022, time.April, 26, 0, 0, 0, 0, time.UTC)},
+		Date:        util.DateISO{time.Date(2022, time.April, 26, 0, 0, 0, 0, time.UTC)},
 		Amount:      31.41,
 		Media:       "card",
 		Description: "some purchase",

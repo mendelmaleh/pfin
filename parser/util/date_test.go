@@ -7,8 +7,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDate(t *testing.T) {
-	d := Date{}
+func TestDateISO(t *testing.T) {
+	d := DateISO{}
 
 	if err := d.UnmarshalText([]byte("2022-04-26")); err != nil {
 		t.Errorf("error unmarshaling text: %s", err)
