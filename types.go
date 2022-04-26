@@ -23,7 +23,7 @@ type Account struct {
 	Type string
 
 	// default user, inherited from config.Pfin.User if unset
-	DefaultUser string
+	DefaultUser string `toml:"user"`
 
 	// map of users to card identifier
 	Users map[string]string
