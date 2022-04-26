@@ -2,112 +2,35 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"sort"
 	"text/tabwriter"
 
 	"git.sr.ht/~mendelmaleh/pfin"
-	"git.sr.ht/~mendelmaleh/pfin/parser/amex"
-	"git.sr.ht/~mendelmaleh/pfin/parser/bofa"
-	"git.sr.ht/~mendelmaleh/pfin/parser/capitalone"
 	"git.sr.ht/~mendelmaleh/pfin/parser/util"
-	"github.com/pelletier/go-toml/v2"
+
+	_ "git.sr.ht/~mendelmaleh/pfin/parser/amex"
+	_ "git.sr.ht/~mendelmaleh/pfin/parser/bofa"
+	_ "git.sr.ht/~mendelmaleh/pfin/parser/capitalone"
+	_ "git.sr.ht/~mendelmaleh/pfin/parser/personal"
 )
 
-type Config struct {
-	Pfin struct {
-		User string
-		Root string
-	}
-
-	Account map[string]Account
-
-	// Account keys/names, sorted, for iteration
-	Accounts []string
-}
-
-type Account struct {
-	Cards map[string]string
-}
-
-func (a Account) User(card string) string {
-	// some statements don't report card/user
-	if card == "-" {
-		return card
-	}
-
-	for k, v := range a.Cards {
-		if v == card {
-			return k
-		}
-	}
-
-	fmt.Println(a.Cards)
-	panic("missing card " + card)
-}
-
-type Transaction struct {
-	pfin.Transaction
-
-	Account string
-	User    string
-}
-
 func main() {
-	cwd, err := os.Getwd()
+	config, err := pfin.ParseConfig("")
 	if err != nil {
-		panic(err)
+		log.Fatal("error parsing config: ", err)
 	}
 
-	configPath := filepath.Clean(filepath.Join(cwd, "../../config.toml"))
-
-	data, err := os.ReadFile(configPath)
-	if err != nil {
-		panic(err)
-	}
-
-	var config Config
-	if err := toml.Unmarshal(data, &config); err != nil {
-		panic(err)
-	}
-
-	// make root filepath absolute
-	config.Pfin.Root = filepath.Clean(filepath.Join(filepath.Dir(configPath), config.Pfin.Root))
-
-	// make a slice of account keys
-	for k, _ := range config.Account {
-		config.Accounts = append(config.Accounts, k)
-	}
-	sort.Strings(config.Accounts)
-
-	// parsing functions, key to fn
-	parsefns := map[string]func([]byte, *[]pfin.Transaction) error{
-		"amex":       amex.Parse,
-		"bofa":       bofa.Parse,
-		"capitalone": capitalone.Parse,
-	}
-
-	var txns []Transaction
-	for _, name := range config.Accounts {
-		fn, ok := parsefns[name]
-		if !ok {
-			fmt.Printf("skipping %q, no parsing function defined\n", name)
-			continue
-		}
-
-		tx, err := util.ParseDir(filepath.Join(config.Pfin.Root, name), fn)
+	var txns []pfin.Transaction
+	for name, acc := range config.Account {
+		tx, err := util.ParseDir(acc, filepath.Join(config.Pfin.Root, name))
 		if err != nil {
 			panic(err)
 		}
 
-		for _, v := range tx {
-			txns = append(txns, Transaction{
-				Transaction: v,
-				Account:     name,
-				User:        config.Account[name].User(v.Card()),
-			})
-		}
+		txns = append(txns, tx...)
 	}
 
 	// sort oldest to newest
@@ -116,13 +39,25 @@ func main() {
 	})
 
 	tw := tabwriter.NewWriter(os.Stdout, 0, 8, 0, '\t', 0)
-	defer tw.Flush()
+
+	var sum = map[string]float64{}
 
 	for _, tx := range txns {
-		// io.WriteString(tw, pfin.TxString(tx, "\t"))
-		// tw.Write([]byte{'\n'})
-		fmt.Fprintf(tw, "%s\t%.2f\t%s\t%s\t%s\n", tx.Date().Format(pfin.ISO8601), tx.Amount(), tx.Account, tx.User, tx.Name())
-		// fmt.Printf("%+v\n", v)
-		// spew.Dump(v)
+		if _, ok := sum[tx.User()]; !ok {
+			sum[tx.User()] = 0
+		}
+
+		sum[tx.User()] += tx.Amount()
+		fmt.Fprintln(tw, pfin.TxString(tx, "\t"))
 	}
+
+	tw.Flush()
+	fmt.Println()
+
+	tw.Init(os.Stdout, 0, 8, 0, '\t', 0)
+	for user, total := range sum {
+		fmt.Fprintf(tw, "%s\t%.2f\n", user, total)
+	}
+
+	tw.Flush()
 }
