@@ -15,6 +15,10 @@ func (tx RawTransaction) Amount() float64 {
 }
 
 func (tx RawTransaction) Card() string {
+	return ""
+}
+
+func (tx RawTransaction) User() string {
 	return tx.UserField
 }
 

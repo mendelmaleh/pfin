@@ -18,29 +18,32 @@ func (Parser) Filetype() string {
 	return "tsv"
 }
 
-func (Parser) Parse(data []byte) (txns []pfin.Transaction, err error) {
-	// remove tabs
-	data = bytes.ReplaceAll(data, []byte{'\t'}, []byte{})
+func (Parser) Parse(acc pfin.Account, data []byte) (txns []pfin.Transaction, err error) {
+	raw, err := Parse(data)
+	if err != nil {
+		return txns, err
+	}
 
+	txns = make([]pfin.Transaction, len(raw))
+	for i, v := range raw {
+		// there is no card/user data, so use default
+		v.UserField = acc.User("")
+		txns[i] = v
+	}
+
+	return
+}
+
+func Parse(data []byte) (raw []RawTransaction, err error) {
 	r := csv.NewReader(bytes.NewReader(data))
 	r.Comma = '\t'
 	r.Comment = '-'
 
 	dec, err := csvutil.NewDecoder(r)
 	if err != nil {
-		return
+		return raw, err
 	}
 
-	var raw []RawTransaction
-	if err = dec.Decode(&raw); err != nil {
-		return
-	}
-
-	txns = make([]pfin.Transaction, len(raw))
-	for i, v := range raw {
-		v.UserField = "-"
-		txns[i] = v
-	}
-
+	err = dec.Decode(&raw)
 	return
 }
