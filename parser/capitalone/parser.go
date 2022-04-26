@@ -12,11 +12,11 @@ func init() {
 // implements pfin.Parser interface
 type Parser struct{}
 
-func (p Parser) Filetype() string {
+func (Parser) Filetype() string {
 	return "csv"
 }
 
-func (p Parser) Parse(data []byte) (txns []pfin.Transaction, err error) {
+func (Parser) Parse(data []byte) (txns []pfin.Transaction, err error) {
 	var raw []RawTransaction
 	if err = csvutil.Unmarshal(data, &raw); err != nil {
 		return
