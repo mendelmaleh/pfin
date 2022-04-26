@@ -41,7 +41,6 @@ func main() {
 	tw.Flush()
 
 	// days since last transaction
-	last := txns[len(txns)-1]
-	fmt.Println(last.Date())
-	fmt.Println(int(time.Now().Sub(last.Date()).Hours()) % 24)
+	last := txns[len(txns)-1].Date()
+	fmt.Println(int(time.Now().Sub(last).Hours()) / 24)
 }
