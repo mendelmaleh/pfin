@@ -17,6 +17,8 @@ type Config struct {
 }
 
 type Account struct {
+	Name string
+
 	// parser type, inherited from account name if unset
 	Type string
 
@@ -61,6 +63,8 @@ func ParseConfig(path string) (config Config, err error) {
 	config.Pfin.Root = filepath.Clean(filepath.Join(filepath.Dir(path), config.Pfin.Root))
 
 	for k, v := range config.Account {
+		v.Name = k
+
 		// set type to name if unset
 		if v.Type == "" {
 			v.Type = k

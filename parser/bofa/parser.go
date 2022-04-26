@@ -30,6 +30,8 @@ func (Parser) Parse(acc pfin.Account, data []byte) (txns []pfin.Transaction, err
 	txns = make([]pfin.Transaction, len(raw))
 	for i, v := range raw {
 		v.Fields.User = acc.User(v.Card())
+		v.Fields.Account = acc.Name
+
 		txns[i] = v
 	}
 

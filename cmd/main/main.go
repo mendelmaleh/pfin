@@ -38,7 +38,7 @@ func main() {
 		return txns[i].Date().Before(txns[j].Date())
 	})
 
-	tw := tabwriter.NewWriter(os.Stdout, 0, 8, 0, '\t', 0)
+	tw := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', 0)
 
 	var sum = map[string]float64{}
 
@@ -54,7 +54,7 @@ func main() {
 	tw.Flush()
 	fmt.Println()
 
-	tw.Init(os.Stdout, 0, 8, 0, '\t', 0)
+	tw.Init(os.Stdout, 0, 8, 1, '\t', 0)
 	for user, total := range sum {
 		fmt.Fprintf(tw, "%s\t%.2f\n", user, total)
 	}

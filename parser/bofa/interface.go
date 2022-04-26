@@ -26,6 +26,10 @@ func (tx Transaction) User() string {
 	return tx.Fields.User
 }
 
+func (tx Transaction) Account() string {
+	return tx.Fields.Account
+}
+
 func (tx Transaction) String() string {
 	return pfin.TxString(tx, " ")
 }

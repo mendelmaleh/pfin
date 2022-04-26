@@ -28,6 +28,8 @@ func (Parser) Parse(acc pfin.Account, data []byte) (txns []pfin.Transaction, err
 	for i, v := range raw {
 		// there is no card/user data, so use default
 		v.Fields.User = acc.User("")
+		v.Fields.Account = acc.Name
+
 		txns[i] = v
 	}
 

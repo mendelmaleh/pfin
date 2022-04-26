@@ -13,8 +13,9 @@ type Transaction interface {
 	Amount() float64
 	Name() string
 
-	Card() string // optional
+	Card() string // may be empty
 	User() string
+	Account() string
 
 	// should be pfin.TxString
 	String() string
@@ -27,6 +28,9 @@ func TxString(tx Transaction, sep string) string {
 	b.WriteString(sep)
 
 	b.WriteString(strconv.FormatFloat(tx.Amount(), 'f', 2, 64))
+	b.WriteString(sep)
+
+	b.WriteString(tx.Account())
 	b.WriteString(sep)
 
 	b.WriteString(tx.User())

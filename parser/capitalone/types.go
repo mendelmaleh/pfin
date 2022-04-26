@@ -8,7 +8,8 @@ type Transaction struct {
 }
 
 type Fields struct {
-	User string
+	User    string
+	Account string
 }
 
 type Raw struct {
