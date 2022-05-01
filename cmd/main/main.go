@@ -10,7 +10,7 @@ import (
 	"text/tabwriter"
 
 	"git.sr.ht/~mendelmaleh/pfin"
-	"git.sr.ht/~mendelmaleh/pfin/parser/util"
+	"git.sr.ht/~mendelmaleh/pfin/util"
 
 	_ "git.sr.ht/~mendelmaleh/pfin/parser/amex"
 	_ "git.sr.ht/~mendelmaleh/pfin/parser/bofa"
@@ -19,15 +19,14 @@ import (
 )
 
 type Opts struct {
-	User    string
-	Account string
+	Users, Accounts util.StringFilter
 }
 
 func main() {
 	// flags
 	var opts Opts
-	flag.StringVar(&opts.User, "user", "", "filter user")
-	flag.StringVar(&opts.Account, "account", "", "filter account")
+	flag.StringVar(&opts.Users.String, "user", "", "filter user")
+	flag.StringVar(&opts.Accounts.String, "account", "", "filter account")
 
 	flag.Parse()
 
@@ -40,6 +39,10 @@ func main() {
 	// collect
 	var txns []pfin.Transaction
 	for name, acc := range config.Account {
+		if opts.Accounts.Filter(name) {
+			continue
+		}
+
 		tx, err := util.ParseDir(acc, filepath.Join(config.Pfin.Root, name))
 		if err != nil {
 			panic(err)
@@ -58,11 +61,7 @@ func main() {
 	var sum = map[string]float64{}
 
 	for _, tx := range txns {
-		if opts.User != "" && tx.User() != opts.User {
-			continue
-		}
-
-		if opts.Account != "" && tx.Account() != opts.Account {
+		if opts.Users.Filter(tx.User()) {
 			continue
 		}
 
