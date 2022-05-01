@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 	"sort"
 	"text/tabwriter"
 
@@ -43,7 +42,7 @@ func main() {
 			continue
 		}
 
-		tx, err := util.ParseDir(acc, filepath.Join(config.Pfin.Root, name))
+		tx, err := util.ParseDir(acc, config.Pfin.Root)
 		if err != nil {
 			panic(err)
 		}

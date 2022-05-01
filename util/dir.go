@@ -17,13 +17,15 @@ func (e ErrNoMatches) Error() string {
 	return fmt.Sprintf("pfin/parser/util: no matches for path %q", e.path)
 }
 
-func ParseDir(acc pfin.Account, path string) ([]pfin.Transaction, error) {
+func ParseDir(acc pfin.Account, root string) ([]pfin.Transaction, error) {
 	var txns []pfin.Transaction
 
 	filetype, err := pfin.Filetype(acc.Type)
 	if err != nil {
 		return txns, err
 	}
+
+	path := filepath.Join(root, acc.Name)
 
 	if path[len(path)-1] != filepath.Separator {
 		path += string(filepath.Separator)
