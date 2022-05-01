@@ -30,6 +30,10 @@ func (tx Transaction) Name() string {
 	return tx.Raw.Description
 }
 
+func (tx Transaction) Category() string {
+	return tx.Raw.Category
+}
+
 func (tx Transaction) Card() string {
 	return tx.Raw.CardNumber
 }
