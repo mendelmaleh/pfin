@@ -25,7 +25,7 @@ func (f *StringFilter) Filter(s string) bool {
 		for _, v := range strings.Split(f.String, ",") {
 			if strings.HasPrefix(v, "!") {
 				f.Default = false
-				f.Map[v] = true
+				f.Map[strings.TrimPrefix(v, "!")] = true
 			} else {
 				f.Map[v] = false
 			}

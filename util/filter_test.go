@@ -17,6 +17,9 @@ func TestStringFilter(t *testing.T) {
 		{"", "mendel", false},
 		{"mendel", "mendel", false},
 		{"mendel", "levi", true},
+		{"mendel,levi", "levi", false},
+		{"!mendel", "mendel", true},
+		{"!mendel", "levi", false},
 	}
 
 	for i, test := range cases {
