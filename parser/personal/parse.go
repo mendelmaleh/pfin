@@ -3,6 +3,7 @@ package personal
 import (
 	"bytes"
 	"encoding/csv"
+	"strings"
 
 	"git.sr.ht/~mendelmaleh/pfin"
 	"github.com/jszwec/csvutil"
@@ -18,7 +19,7 @@ func (Parser) Filetype() string {
 	return "tsv"
 }
 
-func (Parser) Parse(acc pfin.Account, data []byte) (txns []pfin.Transaction, err error) {
+func (Parser) Parse(acc pfin.Account, filename string, data []byte) (txns []pfin.Transaction, err error) {
 	raw, err := Parse(data)
 	if err != nil {
 		return txns, err
@@ -26,8 +27,8 @@ func (Parser) Parse(acc pfin.Account, data []byte) (txns []pfin.Transaction, err
 
 	txns = make([]pfin.Transaction, len(raw))
 	for i, v := range raw {
-		// there is no card/user data, so use default
-		v.Fields.User = acc.User("")
+		before, _, _ := strings.Cut(filename, ".")
+		v.Fields.User = before
 		v.Fields.Account = acc.Name
 
 		txns[i] = v

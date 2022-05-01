@@ -13,7 +13,7 @@ func (e ErrUnregisteredParser) Error() string {
 }
 
 type Parser interface {
-	Parse(acc Account, data []byte) ([]Transaction, error)
+	Parse(acc Account, filename string, data []byte) ([]Transaction, error)
 	Filetype() string
 }
 
@@ -21,12 +21,12 @@ func Register(name string, parser Parser) {
 	parsers[name] = parser
 }
 
-func Parse(acc Account, data []byte) ([]Transaction, error) {
+func Parse(acc Account, filename string, data []byte) ([]Transaction, error) {
 	if _, ok := parsers[acc.Type]; !ok {
 		return []Transaction{}, ErrUnregisteredParser{acc.Type}
 	}
 
-	return parsers[acc.Type].Parse(acc, data)
+	return parsers[acc.Type].Parse(acc, filename, data)
 }
 
 func Filetype(parser string) (string, error) {

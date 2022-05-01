@@ -15,7 +15,7 @@ func (Parser) Filetype() string {
 	return "csv"
 }
 
-func (Parser) Parse(acc pfin.Account, data []byte) (txns []pfin.Transaction, err error) {
+func (Parser) Parse(acc pfin.Account, filename string, data []byte) (txns []pfin.Transaction, err error) {
 	var raw []Transaction
 	if err = csvutil.Unmarshal(data, &raw); err != nil {
 		return

@@ -47,7 +47,7 @@ func ParseDir(acc pfin.Account, path string) ([]pfin.Transaction, error) {
 			return txns, err
 		}
 
-		tx, err := pfin.Parse(acc, file)
+		tx, err := pfin.Parse(acc, filepath.Base(f), file)
 		if err != nil {
 			return txns, err
 		}
