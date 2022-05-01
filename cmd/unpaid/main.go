@@ -16,13 +16,17 @@ import (
 
 type Opts struct {
 	Users, Accounts, Payments util.StringFilter
+
+	Separator string
 }
 
 func main() {
 	var opts Opts
+
 	flag.StringVar(&opts.Users.String, "user", "", "filter user")
 	flag.StringVar(&opts.Accounts.String, "account", "", "filter account")
 	flag.StringVar(&opts.Payments.String, "payment", "payments", "filter payments account")
+	flag.StringVar(&opts.Separator, "sep", "\t", "separator")
 
 	flag.Parse()
 
@@ -66,7 +70,7 @@ func main() {
 
 		// print credits and uncovered debits
 		if a < 0 || a > credit {
-			fmt.Fprintln(tw, pfin.TxString(tx, "\t"))
+			fmt.Fprintln(tw, pfin.TxString(tx, opts.Separator))
 		}
 
 		// sub debits
