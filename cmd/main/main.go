@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -17,12 +18,26 @@ import (
 	_ "git.sr.ht/~mendelmaleh/pfin/parser/personal"
 )
 
+type Opts struct {
+	User    string
+	Account string
+}
+
 func main() {
+	// flags
+	var opts Opts
+	flag.StringVar(&opts.User, "user", "", "filter user")
+	flag.StringVar(&opts.Account, "account", "", "filter account")
+
+	flag.Parse()
+
+	// config
 	config, err := pfin.ParseConfig("")
 	if err != nil {
 		log.Fatal("error parsing config: ", err)
 	}
 
+	// collect
 	var txns []pfin.Transaction
 	for name, acc := range config.Account {
 		tx, err := util.ParseDir(acc, filepath.Join(config.Pfin.Root, name))
@@ -43,6 +58,14 @@ func main() {
 	var sum = map[string]float64{}
 
 	for _, tx := range txns {
+		if opts.User != "" && tx.User() != opts.User {
+			continue
+		}
+
+		if opts.Account != "" && tx.Account() != opts.Account {
+			continue
+		}
+
 		if _, ok := sum[tx.User()]; !ok {
 			sum[tx.User()] = 0
 		}
