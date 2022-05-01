@@ -89,3 +89,7 @@ func (c *Category) UnmarshalText(data []byte) error {
 
 	return nil
 }
+
+func (c *Category) String() string {
+	return fmt.Sprintf("%s/%s", c.Main, c.Sub)
+}

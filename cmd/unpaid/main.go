@@ -13,8 +13,7 @@ import (
 	"git.sr.ht/~mendelmaleh/pfin"
 	"git.sr.ht/~mendelmaleh/pfin/util"
 
-	_ "git.sr.ht/~mendelmaleh/pfin/parser/capitalone"
-	_ "git.sr.ht/~mendelmaleh/pfin/parser/personal"
+	_ "git.sr.ht/~mendelmaleh/pfin/parser/all"
 )
 
 type Opts struct {

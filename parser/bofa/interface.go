@@ -18,6 +18,10 @@ func (tx Transaction) Name() string {
 	return tx.Raw.Description
 }
 
+func (tx Transaction) Category() string {
+	return ""
+}
+
 func (tx Transaction) Card() string {
 	return ""
 }
