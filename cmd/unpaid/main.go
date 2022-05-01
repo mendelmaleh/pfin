@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"sort"
-	"strconv"
 	"strings"
 	"text/tabwriter"
 
@@ -20,6 +19,15 @@ type Opts struct {
 	Users, Accounts, Payments util.StringFilter
 
 	Separator string
+}
+
+func Fields(data [][]string, sep string) string {
+	rows := make([]string, len(data)+1)
+	for i, row := range data {
+		rows[i] = strings.Join(row, sep)
+	}
+
+	return strings.Join(rows, "\n")
 }
 
 func main() {
@@ -97,8 +105,8 @@ func main() {
 			}
 
 			fmt.Fprintln(tw, strings.Join([]string{
-				tx.Date().Format(pfin.ISO8601),
-				strconv.FormatFloat(tx.Amount(), 'f', 2, 64),
+				util.FormatDate(tx.Date()),
+				util.FormatCents(a),
 				tx.Name(),
 				tx.Category(),
 			}, opts.Separator))
@@ -108,17 +116,16 @@ func main() {
 		balance -= a
 	}
 
-	sep := opts.Separator
-	fmt.Fprint(tw, strings.Join([]string{
-		"",
-		fmt.Sprintf("Total:%s%.2f%s((at least partially) unpaid)", sep, total, sep),
-		fmt.Sprintf("Paid:%s%.2f%s(completely covered by payments)", sep, paid, sep),
-		fmt.Sprintf("Payments:%s%.2f%s(previous payments)", sep, credit, sep),
-		fmt.Sprintf("Balance:%s%.2f%s(unpaid + paid - payments) * -1", sep, balance, sep),
-		"",
-		"By category:",
-		"",
-	}, "\n"))
+	data := [][]string{
+		{},
+		{"Total:", util.FormatCents(total), "((at least partially) unpaid)"},
+		{"Paid:", util.FormatCents(paid), "(completely covered by payments)"},
+		{"Payments:", util.FormatCents(credit), "(previous payments)"},
+		{"Balance:", util.FormatCents(balance), "(unpaid + paid - payments) * -1"},
+		{},
+		{"By category:"},
+		{},
+	}
 
 	var sorted []string
 	for k, _ := range categories {
@@ -127,9 +134,9 @@ func main() {
 
 	sort.Strings(sorted)
 	for _, k := range sorted {
-		v := categories[k]
-		fmt.Fprintf(tw, "%s:%s%.2f\n", k, sep, v)
+		data = append(data, []string{k + ":", util.FormatCents(categories[k])})
 	}
 
+	fmt.Fprint(tw, Fields(data, opts.Separator))
 	tw.Flush()
 }

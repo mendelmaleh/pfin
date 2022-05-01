@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"git.sr.ht/~mendelmaleh/pfin"
+	"git.sr.ht/~mendelmaleh/pfin/util"
 )
 
 func (tx Transaction) Date() time.Time {
@@ -47,5 +47,5 @@ func (tx Transaction) Account() string {
 }
 
 func (tx Transaction) String() string {
-	return pfin.TxString(tx, " ")
+	return util.TxString(tx, " ")
 }
