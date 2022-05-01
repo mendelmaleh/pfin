@@ -35,5 +35,5 @@ func (tx Transaction) Account() string {
 }
 
 func (tx Transaction) String() string {
-	return util.TxString(tx, " ")
+	return util.FormatTx(tx, " ")
 }

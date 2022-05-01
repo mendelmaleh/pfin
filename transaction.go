@@ -15,6 +15,6 @@ type Transaction interface {
 	User() string
 	Account() string
 
-	// should be util.TxString
+	// should be util.FormatTx
 	String() string
 }

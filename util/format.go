@@ -18,25 +18,22 @@ func FormatDate(t time.Time) string {
 	return t.Format(ISO8601)
 }
 
-func TxString(tx pfin.Transaction, sep string) string {
-	var b strings.Builder
+func FormatFields(data [][]string, sep string) string {
+	rows := make([]string, len(data)+1)
+	for i, row := range data {
+		rows[i] = strings.Join(row, sep)
+	}
 
-	b.WriteString(FormatDate(tx.Date()))
-	b.WriteString(sep)
+	return strings.Join(rows, "\n")
+}
 
-	b.WriteString(FormatCents(tx.Amount()))
-	b.WriteString(sep)
-
-	b.WriteString(tx.Account())
-	b.WriteString(sep)
-
-	b.WriteString(tx.User())
-	b.WriteString(sep)
-
-	b.WriteString(tx.Name())
-	b.WriteString(sep)
-
-	b.WriteString(tx.Category())
-
-	return b.String()
+func FormatTx(tx pfin.Transaction, sep string) string {
+	return strings.Join([]string{
+		FormatDate(tx.Date()),
+		FormatCents(tx.Amount()),
+		tx.Account(),
+		tx.User(),
+		tx.Name(),
+		tx.Category(),
+	}, sep)
 }

@@ -21,15 +21,6 @@ type Opts struct {
 	Separator string
 }
 
-func Fields(data [][]string, sep string) string {
-	rows := make([]string, len(data)+1)
-	for i, row := range data {
-		rows[i] = strings.Join(row, sep)
-	}
-
-	return strings.Join(rows, "\n")
-}
-
 func main() {
 	var opts Opts
 
@@ -137,6 +128,6 @@ func main() {
 		data = append(data, []string{k + ":", util.FormatCents(categories[k])})
 	}
 
-	fmt.Fprint(tw, Fields(data, opts.Separator))
+	fmt.Fprint(tw, util.FormatFields(data, opts.Separator))
 	tw.Flush()
 }

@@ -69,7 +69,7 @@ func main() {
 		}
 
 		sum[tx.User()] += tx.Amount()
-		fmt.Fprintln(tw, pfin.TxString(tx, "\t"))
+		fmt.Fprintln(tw, util.FormatTx(tx, "\t"))
 	}
 
 	tw.Flush()
