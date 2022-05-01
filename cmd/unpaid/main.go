@@ -39,7 +39,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	var txns []pfin.Transaction
+	var debits []pfin.Transaction
 	var credit float64
 
 	for name, acc := range config.Account {
@@ -47,40 +47,55 @@ func main() {
 			continue
 		}
 
-		dirtxns, err := util.ParseDir(acc, config.Pfin.Root)
+		txns, err := util.ParseDir(acc, config.Pfin.Root)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		for _, tx := range dirtxns {
+		for _, tx := range txns {
 			if opts.Users.Filter(tx.User()) {
 				continue
 			}
 
-			txns = append(txns, tx)
-
 			if tx.Amount() < 0 {
 				credit += tx.Amount()
+			} else {
+				debits = append(debits, tx)
 			}
+
 		}
 	}
 
-	sort.SliceStable(txns, func(i, j int) bool {
-		return txns[i].Date().Before(txns[j].Date())
+	sort.SliceStable(debits, func(i, j int) bool {
+		return debits[i].Date().Before(debits[j].Date())
 	})
-
-	credit *= -1
-	// fmt.Printf("credit: %.2f\n", credit)
 
 	tw := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', 0)
 
+	categories := make(map[string]float64)
+	balance := credit * -1
+
 	var total, paid float64
-	for _, tx := range txns {
+	for _, tx := range debits {
 		a := tx.Amount()
 
-		// print credits and uncovered debits
-		if a < 0 || a > credit {
+		// calculate paid
+		if a < balance {
+			paid += a
+		}
+
+		// print uncovered debits
+		if a > balance {
 			total += a
+
+			// calculate unpaid categories
+			c := tx.Category()
+
+			if _, ok := categories[c]; !ok {
+				categories[c] = a
+			} else {
+				categories[c] += a
+			}
 
 			fmt.Fprintln(tw, strings.Join([]string{
 				tx.Date().Format(pfin.ISO8601),
@@ -90,28 +105,32 @@ func main() {
 			}, opts.Separator))
 		}
 
-		// skip credits
-		if a < 0 {
-			continue
-		}
-
-		// calculate paid
-		if a < credit {
-			paid += a
-		}
-
-		// sub debits
-		credit -= a
+		// update balance
+		balance -= a
 	}
 
 	sep := opts.Separator
 	fmt.Fprint(tw, strings.Join([]string{
 		"",
-		fmt.Sprintf("total:%s%.2f%s((at least partially) unpaid and payments)", sep, total, sep),
-		fmt.Sprintf("paid:%s%.2f%s(completely covered by payments)", sep, paid, sep),
-		fmt.Sprintf("balance:%s%.2f", sep, credit),
+		fmt.Sprintf("Total:%s%.2f%s((at least partially) unpaid)", sep, total, sep),
+		fmt.Sprintf("Paid:%s%.2f%s(completely covered by payments)", sep, paid, sep),
+		fmt.Sprintf("Payments:%s%.2f%s(previous payments)", sep, credit, sep),
+		fmt.Sprintf("Balance:%s%.2f%s(unpaid + paid - payments) * -1", sep, balance, sep),
+		"",
+		"By category:",
 		"",
 	}, "\n"))
+
+	var sorted []string
+	for k, _ := range categories {
+		sorted = append(sorted, k)
+	}
+
+	sort.Strings(sorted)
+	for _, k := range sorted {
+		v := categories[k]
+		fmt.Fprintf(tw, "%s:%s%.2f\n", k, sep, v)
+	}
 
 	tw.Flush()
 }
