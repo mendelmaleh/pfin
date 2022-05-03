@@ -5,9 +5,15 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"sync"
 
 	"git.sr.ht/~mendelmaleh/pfin"
 )
+
+type result struct {
+	s  string
+	tx []pfin.Transaction
+}
 
 type ErrNoMatches struct {
 	path string
@@ -40,22 +46,51 @@ func ParseDir(acc pfin.Account, root string) ([]pfin.Transaction, error) {
 		return txns, ErrNoMatches{path}
 	}
 
-	// sort oldest first
-	sort.Strings(matches)
+	ch := make(chan result, len(matches))
+	cherr := make(chan error, 1)
+
+	var wg sync.WaitGroup
 
 	for _, f := range matches {
-		file, err := os.ReadFile(f)
-		if err != nil {
-			return txns, err
-		}
+		wg.Add(1)
 
-		tx, err := pfin.Parse(acc, filepath.Base(f), file)
-		if err != nil {
-			return txns, err
-		}
+		go func(f string) {
+			defer wg.Done()
 
-		// TODO: use copy(), consider parallelizing
-		txns = append(txns, tx...)
+			file, err := os.ReadFile(f)
+			if err != nil {
+				cherr <- err
+				return
+			}
+
+			tx, err := pfin.Parse(acc, filepath.Base(f), file)
+			if err != nil {
+				cherr <- err
+			}
+
+			ch <- result{f, tx}
+		}(f)
+	}
+
+	wg.Wait()
+	close(ch)
+
+	files := make(map[string][]pfin.Transaction)
+
+	for len(files) < len(matches) {
+		select {
+		case err := <-cherr:
+			return txns, err
+		case res := <-ch:
+			files[res.s] = res.tx
+			// txns = append(txns, tx...)
+		}
+	}
+
+	// sort oldest first
+	sort.Strings(matches)
+	for _, f := range matches {
+		txns = append(txns, files[f]...)
 	}
 
 	return txns, nil
