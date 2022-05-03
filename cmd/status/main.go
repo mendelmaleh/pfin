@@ -3,16 +3,13 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
-	"path/filepath"
 	"sort"
-	"text/tabwriter"
 	"time"
 
 	"git.sr.ht/~mendelmaleh/pfin"
-	"git.sr.ht/~mendelmaleh/pfin/parser/util"
+	"git.sr.ht/~mendelmaleh/pfin/util"
 
-	_ "git.sr.ht/~mendelmaleh/pfin/parser/capitalone"
+	_ "git.sr.ht/~mendelmaleh/pfin/parser/all"
 )
 
 func main() {
@@ -23,24 +20,24 @@ func main() {
 	}
 
 	// parse accounts
-	txns, err := util.ParseDir("capitalone", filepath.Join(config.Pfin.Root, "capitalone"))
-	if err != nil {
-		log.Fatal(err)
+	txns := make(map[string][]pfin.Transaction, len(config.Account))
+
+	for name, acc := range config.Account {
+		tx, err := util.ParseDir(acc, config.Pfin.Root)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		sort.SliceStable(tx, func(i, j int) bool {
+			return tx[i].Date().Before(tx[j].Date())
+		})
+
+		txns[name] = tx
 	}
-
-	sort.SliceStable(txns, func(i, j int) bool {
-		return txns[i].Date().Before(txns[j].Date())
-	})
-
-	// summary
-	tw := tabwriter.NewWriter(os.Stdout, 0, 8, 0, '\t', 0)
-	for _, tx := range txns {
-		fmt.Fprintln(tw, pfin.TxString(tx, "\t"))
-	}
-
-	tw.Flush()
 
 	// days since last transaction
-	last := txns[len(txns)-1].Date()
-	fmt.Println(int(time.Now().Sub(last).Hours()) / 24)
+	for name, tx := range txns {
+		last := tx[len(tx)-1].Date()
+		fmt.Printf("%s: %d\n", name, int(time.Now().Sub(last).Hours())/24)
+	}
 }
