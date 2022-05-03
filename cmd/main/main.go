@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"sort"
+	"sync"
 	"text/tabwriter"
 
 	"git.sr.ht/~mendelmaleh/pfin"
@@ -36,17 +37,31 @@ func main() {
 	}
 
 	// collect
-	var txns []pfin.Transaction
+	ch := make(chan []pfin.Transaction, len(config.Account))
+	var wg sync.WaitGroup
+
 	for name, acc := range config.Account {
 		if opts.Accounts.Filter(name) {
 			continue
 		}
 
-		tx, err := util.ParseDir(acc, config.Pfin.Root)
-		if err != nil {
-			panic(err)
-		}
+		wg.Add(1)
+		go func(acc pfin.Account, root string) {
+			defer wg.Done()
+			tx, err := util.ParseDir(acc, root)
+			if err != nil {
+				panic(err)
+			}
 
+			ch <- tx
+		}(acc, config.Pfin.Root)
+	}
+
+	wg.Wait()
+	close(ch)
+
+	var txns []pfin.Transaction
+	for tx := range ch {
 		txns = append(txns, tx...)
 	}
 
