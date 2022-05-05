@@ -26,7 +26,12 @@ func Parse(acc Account, filename string, data []byte) ([]Transaction, error) {
 		return []Transaction{}, ErrUnregisteredParser{acc.Type}
 	}
 
-	return parsers[acc.Type].Parse(acc, filename, data)
+	txns, err := parsers[acc.Type].Parse(acc, filename, data)
+	if err != nil {
+		return []Transaction{}, fmt.Errorf("error parsing %s/%s: %w", acc.Name, filename, err)
+	}
+
+	return txns, nil
 }
 
 func Filetype(parser string) (string, error) {
