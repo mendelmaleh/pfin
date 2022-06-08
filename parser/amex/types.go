@@ -56,6 +56,7 @@ func (c *CityState) UnmarshalText(data []byte) error {
 		c.State = s[1]
 	}
 
+	// TODO: won't fail if only one part, expected?
 	if len(s) > 2 {
 		return fmt.Errorf("expected two parts for City/State, got %d (%v, %s)", len(s), s, string(data))
 	}

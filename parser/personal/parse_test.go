@@ -33,5 +33,4 @@ date    	amount	media	description
 	for i, v := range raw {
 		assert.Equal(txns[i], v)
 	}
-
 }

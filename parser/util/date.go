@@ -14,6 +14,7 @@ func (d *DateISO) UnmarshalText(data []byte) error {
 	}
 
 	d.Time = t
+
 	return nil
 }
 
@@ -28,5 +29,6 @@ func (d *DateUS) UnmarshalText(data []byte) error {
 	}
 
 	d.Time = t
+
 	return nil
 }
