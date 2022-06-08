@@ -11,7 +11,8 @@ func (tx Transaction) Date() time.Time {
 }
 
 func (tx Transaction) Amount() float64 {
-	return tx.Raw.Amount
+	// amex is inverted, positive is debit, negative is credit
+	return -tx.Raw.Amount
 }
 
 func (tx Transaction) Name() string {
