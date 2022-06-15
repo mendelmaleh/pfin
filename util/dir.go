@@ -17,12 +17,12 @@ func (e ErrNoMatches) Error() string {
 	return fmt.Sprintf("pfin/parser/util: no matches for path %q", e.path)
 }
 
-func ParseDir(acc pfin.Account, root string) ([]pfin.Transaction, error) {
-	var txns []pfin.Transaction
+func MatchDir(acc pfin.Account, root string) ([]string, error) {
+	var matches []string
 
 	filetype, err := pfin.Filetype(acc.Type)
 	if err != nil {
-		return txns, err
+		return matches, err
 	}
 
 	path := filepath.Join(root, acc.Name)
@@ -31,17 +31,28 @@ func ParseDir(acc pfin.Account, root string) ([]pfin.Transaction, error) {
 		path += string(filepath.Separator)
 	}
 
-	matches, err := filepath.Glob(path + "*." + filetype)
+	matches, err = filepath.Glob(path + "*." + filetype)
 	if err != nil {
-		return txns, err
+		return matches, err
 	}
 
 	if len(matches) == 0 {
-		return txns, ErrNoMatches{path}
+		return matches, ErrNoMatches{path}
 	}
 
 	// sort oldest first
 	sort.Strings(matches)
+
+	return matches, nil
+}
+
+func ParseDir(acc pfin.Account, root string) ([]pfin.Transaction, error) {
+	var txns []pfin.Transaction
+
+	matches, err := MatchDir(acc, root)
+	if err != nil {
+		return txns, err
+	}
 
 	for _, f := range matches {
 		file, err := os.ReadFile(f)
