@@ -11,7 +11,6 @@ func (tx Transaction) Date() time.Time {
 }
 
 func (tx Transaction) Amount() float64 {
-	// TODO: should it be negative?
 	return tx.Raw.Amount
 }
 

@@ -14,7 +14,7 @@ func (tx Transaction) Date() time.Time {
 }
 
 func (tx Transaction) Amount() float64 {
-	return tx.Raw.Amount
+	return -tx.Raw.Amount
 }
 
 func (tx Transaction) Name() string {

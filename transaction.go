@@ -6,7 +6,7 @@ import (
 
 type Transaction interface {
 	Date() time.Time
-	Amount() float64 // positive for credit, negative for debit
+	Amount() float64 // positive for debit, negative for credit
 	Name() string
 
 	Category() string

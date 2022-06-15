@@ -13,11 +13,11 @@ func (tx Transaction) Date() time.Time {
 
 func (tx Transaction) Amount() float64 {
 	if tx.Debit != 0 {
-		return -tx.Debit
+		return tx.Debit
 	}
 
 	if tx.Credit != 0 {
-		return tx.Credit
+		return -tx.Credit
 	}
 
 	// TODO
