@@ -11,10 +11,7 @@ import (
 	"git.sr.ht/~mendelmaleh/pfin"
 	"git.sr.ht/~mendelmaleh/pfin/util"
 
-	_ "git.sr.ht/~mendelmaleh/pfin/parser/amex"
-	_ "git.sr.ht/~mendelmaleh/pfin/parser/bofa"
-	_ "git.sr.ht/~mendelmaleh/pfin/parser/capitalone"
-	_ "git.sr.ht/~mendelmaleh/pfin/parser/personal"
+	_ "git.sr.ht/~mendelmaleh/pfin/parser/all"
 )
 
 type Opts struct {
@@ -57,27 +54,41 @@ func main() {
 
 	tw := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', 0)
 
-	var sum = map[string]float64{}
+	users := map[string]int{}
+	sums := []struct{ debits, credits float64 }{}
 
 	for _, tx := range txns {
-		if opts.Users.Filter(tx.User()) {
+		u := tx.User()
+		a := tx.Amount()
+
+		if opts.Users.Filter(u) {
 			continue
 		}
 
-		if _, ok := sum[tx.User()]; !ok {
-			sum[tx.User()] = 0
+		if _, ok := users[u]; !ok {
+			users[u] = len(users)
+			sums = append(sums, struct{ debits, credits float64 }{})
 		}
 
-		sum[tx.User()] += tx.Amount()
+		if a < 0 {
+			sums[users[u]].debits += a
+		} else {
+			sums[users[u]].credits += a
+		}
+
 		fmt.Fprintln(tw, util.FormatTx(tx, "\t"))
 	}
 
 	tw.Flush()
 	fmt.Println()
 
-	tw.Init(os.Stdout, 0, 8, 1, '\t', 0)
-	for user, total := range sum {
-		fmt.Fprintf(tw, "%s\t%.2f\n", user, total)
+	tw.Init(os.Stdout, 0, 8, 1, '\t', 1)
+
+	fmt.Fprintf(tw, "name\tdebits\tcredits\ttotal\n")
+	fmt.Fprintf(tw, "----\t------\t-------\t-----\n")
+
+	for k, v := range users {
+		fmt.Fprintf(tw, "%s\t%.2f\t%.2f\t%.2f\n", k, sums[v].debits, sums[v].credits, sums[v].debits+sums[v].credits)
 	}
 
 	tw.Flush()

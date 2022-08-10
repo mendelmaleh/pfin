@@ -3,7 +3,10 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
+	"path/filepath"
 	"sort"
+	"text/tabwriter"
 	"time"
 
 	"git.sr.ht/~mendelmaleh/pfin"
@@ -19,10 +22,29 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// parse accounts
-	txns := make(map[string][]pfin.Transaction, len(config.Account))
+	tw := tabwriter.NewWriter(os.Stdout, 0, 8, 0, '\t', 0)
+	defer tw.Flush()
 
-	for name, acc := range config.Account {
+	fmt.Fprint(tw, "account\tlast tx\tdays\tlast file\n")
+	fmt.Fprint(tw, "-------\t-------\t----\t---------\n")
+
+	var accounts []string
+	for name, _ := range config.Account {
+		accounts = append(accounts, name)
+	}
+
+	sort.Strings(accounts)
+
+	for _, name := range accounts {
+		acc := config.Account[name]
+
+		// parse dirs
+		matches, err := util.MatchDir(acc, config.Pfin.Root)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// parse transactions
 		tx, err := util.ParseDir(acc, config.Pfin.Root)
 		if err != nil {
 			log.Fatal(err)
@@ -32,12 +54,14 @@ func main() {
 			return tx[i].Date().Before(tx[j].Date())
 		})
 
-		txns[name] = tx
-	}
-
-	// days since last transaction
-	for name, tx := range txns {
+		// output
 		last := tx[len(tx)-1].Date()
-		fmt.Printf("%s: %d\n", name, int(time.Now().Sub(last).Hours())/24)
+		fmt.Fprintf(
+			tw, "%s\t%s\t%d\t%s\n",
+			name,
+			util.FormatDate(last),
+			int(time.Now().Sub(last).Hours())/24,
+			filepath.Base(matches[len(matches)-1]),
+		)
 	}
 }

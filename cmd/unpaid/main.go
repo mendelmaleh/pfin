@@ -38,7 +38,7 @@ func main() {
 	}
 
 	var debits []pfin.Transaction
-	var credit float64
+	var debit, credit float64
 
 	for name, acc := range config.Account {
 		if opts.Accounts.Filter(name) && opts.Payments.Filter(name) {
@@ -55,12 +55,13 @@ func main() {
 				continue
 			}
 
-			if tx.Amount() < 0 {
-				credit += tx.Amount()
-			} else {
+			if a := tx.Amount(); a > 0 {
 				debits = append(debits, tx)
+				debit += a
+			} else {
+				// credits = append(credits, tx)
+				credit += a
 			}
-
 		}
 	}
 
@@ -69,65 +70,63 @@ func main() {
 	})
 
 	tw := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', 0)
+	i := 0
 
-	categories := make(map[string]float64)
-	balance := credit * -1
+	var paid float64
+	for i < len(debits) {
+		a := debits[i].Amount()
 
-	var total, paid float64
-	for _, tx := range debits {
-		a := tx.Amount()
-
-		// calculate paid
-		if a < balance {
-			paid += a
+		if paid+a > -credit {
+			break
 		}
 
-		// print uncovered debits
-		if a > balance {
-			total += a
+		paid += a
+		i++
+	}
 
-			// calculate unpaid categories
-			c := tx.Category()
+	var unpaid float64
+	for ; i < len(debits); i++ {
+		tx := debits[i]
+		unpaid += tx.Amount()
 
-			if _, ok := categories[c]; !ok {
-				categories[c] = a
-			} else {
-				categories[c] += a
+		fmt.Fprintln(tw, strings.Join([]string{
+			util.FormatDate(tx.Date()),
+			util.FormatCents(tx.Amount()),
+			tx.Name(),
+			tx.Category(),
+		}, opts.Separator))
+	}
+
+	fmt.Fprint(tw, "\n")
+	tw.Flush()
+
+	tw.Init(os.Stdout, 1, 8, 2, ' ', 0)
+
+	func(keys ...string) {
+		header := strings.Join(keys, "\t")
+		fmt.Fprintln(tw, header)
+
+		fmt.Fprintln(tw, strings.Map(func(r rune) rune {
+			if r != '\t' {
+				return '-'
+			}
+			return r
+		}, header))
+	}("balance", "unpaid", "paid", "debits", "credits")
+
+	func(values ...float64) {
+		var b strings.Builder
+
+		for i, v := range values {
+			if i != 0 {
+				b.WriteString("\t")
 			}
 
-			fmt.Fprintln(tw, strings.Join([]string{
-				util.FormatDate(tx.Date()),
-				util.FormatCents(a),
-				tx.Name(),
-				tx.Category(),
-			}, opts.Separator))
+			b.WriteString(util.FormatCents(v))
 		}
 
-		// update balance
-		balance -= a
-	}
+		fmt.Fprintln(tw, b.String())
+	}(debit+credit, unpaid, paid, debit, credit)
 
-	data := [][]string{
-		{},
-		{"Total:", util.FormatCents(total), "((at least partially) unpaid)"},
-		{"Paid:", util.FormatCents(paid), "(completely covered by payments)"},
-		{"Payments:", util.FormatCents(credit), "(previous payments)"},
-		{"Balance:", util.FormatCents(balance), "(unpaid + paid - payments) * -1"},
-		{},
-		{"By category:"},
-		{},
-	}
-
-	var sorted []string
-	for k, _ := range categories {
-		sorted = append(sorted, k)
-	}
-
-	sort.Strings(sorted)
-	for _, k := range sorted {
-		data = append(data, []string{k + ":", util.FormatCents(categories[k])})
-	}
-
-	fmt.Fprint(tw, util.FormatFields(data, opts.Separator))
 	tw.Flush()
 }
