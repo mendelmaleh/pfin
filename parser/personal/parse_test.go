@@ -10,8 +10,8 @@ import (
 
 func TestParse(t *testing.T) {
 	data := []byte(`
-date    	amount	media	description
-----    	------	-----	-----------
+date	amount	media	description
+----	------	-----	-----------
 - some comment
 2022-04-26	31.41	card	some purchase
 `)
