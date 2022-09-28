@@ -3,8 +3,6 @@ package util
 import (
 	"testing"
 	"time"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestDateISO(t *testing.T) {
@@ -14,6 +12,7 @@ func TestDateISO(t *testing.T) {
 		t.Errorf("error unmarshaling text: %s", err)
 	}
 
-	assert := assert.New(t)
-	assert.Equal(time.Date(2022, time.April, 26, 0, 0, 0, 0, time.UTC), d.Time)
+	if c := time.Date(2022, time.April, 26, 0, 0, 0, 0, time.UTC); !c.Equal(d.Time) {
+		t.Errorf("failed: expected %v, got %v", c, d.Time)
+	}
 }
