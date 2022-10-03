@@ -3,9 +3,11 @@ module git.sr.ht/~mendelmaleh/pfin
 go 1.17
 
 require (
+	github.com/andybalholm/cascadia v1.3.1
 	github.com/jszwec/csvutil v1.6.0
 	github.com/pelletier/go-toml/v2 v2.0.0-beta.6
 	github.com/stretchr/testify v1.7.1-0.20210427113832-6241f9ab9942
+	golang.org/x/net v0.0.0-20220927171203-f486391704dc
 )
 
 require (
