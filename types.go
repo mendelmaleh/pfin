@@ -26,7 +26,9 @@ type Account struct {
 	DefaultUser string `toml:"user"`
 
 	// map of users to card identifier
-	Users map[string]string
+	Users map[string][]string
+
+	// generated
 	Cards map[string]string
 }
 
@@ -77,8 +79,10 @@ func ParseConfig(path string) (config Config, err error) {
 
 		// set card to user map
 		v.Cards = make(map[string]string)
-		for user, card := range v.Users {
-			v.Cards[card] = user
+		for user, cards := range v.Users {
+			for _, card := range cards {
+				v.Cards[card] = user
+			}
 		}
 
 		config.Account[k] = v
