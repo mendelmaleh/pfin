@@ -25,7 +25,7 @@ func MatchDir(acc pfin.Account, root string) ([]string, error) {
 		return matches, err
 	}
 
-	path := filepath.Join(root, acc.Name)
+	path := filepath.Join(root, acc.Path)
 
 	if path[len(path)-1] != filepath.Separator {
 		path += string(filepath.Separator)

@@ -25,6 +25,9 @@ type Account struct {
 	// parser type, inherited from account name if unset
 	Type string
 
+	// folder path from root, inherited from account name if unset
+	Path string
+
 	// default user, inherited from config.Pfin.User if unset
 	DefaultUser string `toml:"user"`
 
@@ -75,6 +78,11 @@ func ParseConfig(path string) (config Config, err error) {
 		// set type to name if unset
 		if v.Type == "" {
 			v.Type = k
+		}
+
+		// set path to name if unset
+		if v.Path == "" {
+			v.Path = k
 		}
 
 		// set default user if unset
