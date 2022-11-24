@@ -3,6 +3,7 @@ package pfin
 import (
 	"os"
 	"path/filepath"
+	"sort"
 
 	"github.com/pelletier/go-toml/v2"
 )
@@ -13,7 +14,9 @@ type Config struct {
 		Root string
 	}
 
-	Account map[string]Account
+	// the map is nice in the toml config, but not that nice for usability
+	Account  map[string]Account
+	Accounts []string
 }
 
 type Account struct {
@@ -65,7 +68,9 @@ func ParseConfig(path string) (config Config, err error) {
 	config.Pfin.Root = filepath.Clean(filepath.Join(filepath.Dir(path), config.Pfin.Root))
 
 	for k, v := range config.Account {
+		// store the name in the struct and in the list of (sorted) accounts
 		v.Name = k
+		config.Accounts = append(config.Accounts, k)
 
 		// set type to name if unset
 		if v.Type == "" {
@@ -85,8 +90,11 @@ func ParseConfig(path string) (config Config, err error) {
 			}
 		}
 
+		// reassign modified copy to map
 		config.Account[k] = v
 	}
+
+	sort.Strings(config.Accounts)
 
 	return
 }
