@@ -32,6 +32,7 @@ func FormatTx(tx pfin.Transaction, sep string) string {
 		FormatDate(tx.Date()),
 		FormatCents(tx.Amount()),
 		tx.Account(),
+		tx.Card(),
 		tx.User(),
 		tx.Name(),
 		tx.Category(),
