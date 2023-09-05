@@ -1,6 +1,8 @@
 package util
 
-import "time"
+import (
+	"time"
+)
 
 // DateISO implements the encoding.TextUnmarshaler interface to unmarshal from an ISO8601 date
 type DateISO struct {
@@ -16,6 +18,16 @@ func (d *DateISO) UnmarshalText(data []byte) error {
 	d.Time = t
 
 	return nil
+}
+
+/*
+func (d *DateISO) String() string {
+	return "b"
+}
+*/
+
+func (d DateISO) MarshalText() ([]byte, error) {
+	return []byte(d.Time.Format("2006-01-02")), nil
 }
 
 type DateUS struct {
