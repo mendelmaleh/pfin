@@ -26,7 +26,7 @@ func main() {
 
 	flag.StringVar(&opts.Users.String, "user", "", "filter user")
 	flag.StringVar(&opts.Accounts.String, "account", "", "filter account")
-	flag.StringVar(&opts.Payments.String, "payment", "payments", "filter payments account")
+	flag.StringVar(&opts.Payments.String, "payments", "payments", "filter payments account")
 
 	flag.StringVar(&opts.Separator, "sep", "\t", "separator")
 
@@ -93,7 +93,7 @@ func main() {
 			util.FormatDate(tx.Date()),
 			util.FormatCents(tx.Amount()),
 			tx.Name(),
-			tx.Category(),
+			// tx.Category(),
 		}, opts.Separator))
 	}
 

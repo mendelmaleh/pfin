@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"sort"
+	"strings"
 	"text/tabwriter"
 
 	"git.sr.ht/~mendelmaleh/pfin"
@@ -19,20 +20,20 @@ type Opts struct {
 }
 
 func main() {
-	// flags
+	// tool flags
 	var opts Opts
 	flag.StringVar(&opts.Users.String, "user", "", "filter user")
 	flag.StringVar(&opts.Accounts.String, "account", "", "filter account")
 
 	flag.Parse()
 
-	// config
+	// pfin config
 	config, err := pfin.ParseConfig("")
 	if err != nil {
 		log.Fatal("error parsing config: ", err)
 	}
 
-	// collect
+	// collect accounts
 	var txns []pfin.Transaction
 	for name, acc := range config.Account {
 		if opts.Accounts.Filter(name) {
@@ -57,6 +58,7 @@ func main() {
 	users := map[string]int{}
 	sums := []struct{ debits, credits float64 }{}
 
+	var debits, credits float64
 	for _, tx := range txns {
 		u := tx.User()
 		a := tx.Amount()
@@ -70,13 +72,23 @@ func main() {
 			sums = append(sums, struct{ debits, credits float64 }{})
 		}
 
-		if a < 0 {
+		if a > 0 {
+			debits += a
 			sums[users[u]].debits += a
 		} else {
+			credits += a
 			sums[users[u]].credits += a
 		}
 
-		fmt.Fprintln(tw, util.FormatTx(tx, "\t"))
+		fmt.Fprintln(tw, strings.Join([]string{
+			util.FormatDate(tx.Date()),
+			util.FormatCents(tx.Amount()),
+			tx.Card(),
+			tx.User(),
+			tx.Name(),
+			// tx.Category(),
+		}, "\t"))
+
 	}
 
 	tw.Flush()
@@ -86,6 +98,7 @@ func main() {
 
 	fmt.Fprintf(tw, "name\tdebits\tcredits\ttotal\n")
 	fmt.Fprintf(tw, "----\t------\t-------\t-----\n")
+	fmt.Fprintf(tw, "%s\t%.2f\t%.2f\t%.2f\n", "total", debits, credits, debits+credits)
 
 	for k, v := range users {
 		fmt.Fprintf(tw, "%s\t%.2f\t%.2f\t%.2f\n", k, sums[v].debits, sums[v].credits, sums[v].debits+sums[v].credits)
