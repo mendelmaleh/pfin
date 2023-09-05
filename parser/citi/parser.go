@@ -12,7 +12,10 @@ func init() {
 	pfin.Register("citi", Parser{})
 }
 
-var virtualRegex = regexp.MustCompile(` - Virtual Account Number (\d{4})$`)
+var (
+	digitalRegex = regexp.MustCompile(` Digital Account Number XXXXXXXXXXXX(\d{4})$`)
+	virtualRegex = regexp.MustCompile(` - Virtual Account Number (\d{4})$`)
+)
 
 // implements pfin.Parser interface
 type Parser struct{}
@@ -36,8 +39,10 @@ func (Parser) Parse(acc pfin.Account, filename string, data []byte) (txns []pfin
 		}
 
 		// virtual card number or cardmember
-		matches := virtualRegex.FindStringSubmatchIndex(tx.Description)
-		if len(matches) > 0 {
+		if matches := virtualRegex.FindStringSubmatchIndex(tx.Description); len(matches) > 0 {
+			tx.Fields.Card = tx.Description[matches[2]:]
+			tx.Description = tx.Description[:matches[0]]
+		} else if matches := digitalRegex.FindStringSubmatchIndex(tx.Description); len(matches) > 0 {
 			tx.Fields.Card = tx.Description[matches[2]:]
 			tx.Description = tx.Description[:matches[0]]
 		} else {
