@@ -15,6 +15,6 @@ type Fields struct {
 type Raw struct {
 	Date           util.DateUS `csv:"Date"`
 	Description    string      `csv:"Description"`
-	Amount         float64     `csv:"Amount,omitempty"`
-	RunningBalance float64     `csv:"Running Bal."`
+	Amount         util.Amount `csv:"Amount,omitempty"`
+	RunningBalance util.Amount `csv:"Running Bal."`
 }
