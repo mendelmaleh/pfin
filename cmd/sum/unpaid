@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -euo pipefail
+
+# 1. get all transactions
+# 2. filter by account/user
+# 3. sum all and print unpaid transactions
+# 4. filter columns
+# 5. print nice elastic tabs table
+pfin | xsv search -s $@ | sum -unpaid | xsv select 1-3,6 | xsv table
