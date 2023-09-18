@@ -2,6 +2,7 @@ package util
 
 import (
 	"bytes"
+	"fmt"
 	"strconv"
 )
 
@@ -13,6 +14,10 @@ func (a *Amount) Cents() int {
 
 func (a *Amount) Float64() float64 {
 	return float64(*a) / 100
+}
+
+func (a *Amount) String() string {
+	return fmt.Sprintf("%.2f", a.Float64())
 }
 
 func (a *Amount) UnmarshalText(data []byte) error {

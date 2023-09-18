@@ -20,14 +20,12 @@ func (d *DateISO) UnmarshalText(data []byte) error {
 	return nil
 }
 
-/*
 func (d *DateISO) String() string {
-	return "b"
+	return d.Time.Format("2006-01-02")
 }
-*/
 
 func (d DateISO) MarshalText() ([]byte, error) {
-	return []byte(d.Time.Format("2006-01-02")), nil
+	return []byte(d.String()), nil
 }
 
 type DateUS struct {
