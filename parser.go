@@ -13,8 +13,8 @@ func (e ErrUnregisteredParser) Error() string {
 }
 
 type Parser interface {
-	Parse(acc Account, filename string, data []byte) ([]Transaction, error)
 	Filetype() string
+	Parse(acc Account, filename string, data []byte) ([]Transaction, error)
 }
 
 func Register(name string, parser Parser) {
