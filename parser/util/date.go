@@ -4,9 +4,13 @@ import (
 	"time"
 )
 
-// DateISO implements the encoding.TextUnmarshaler interface to unmarshal from an ISO8601 date
+// DateISO decodes ISO8601 dates
 type DateISO struct {
 	time.Time
+}
+
+func (d *DateISO) UnmarshalJSON(data []byte) error {
+	return d.UnmarshalText(data[1 : len(data)-1])
 }
 
 func (d *DateISO) UnmarshalText(data []byte) error {
@@ -30,6 +34,10 @@ func (d DateISO) MarshalText() ([]byte, error) {
 
 type DateUS struct {
 	time.Time
+}
+
+func (d *DateUS) UnmarshalJSON(data []byte) error {
+	return d.UnmarshalText(data[1 : len(data)-1])
 }
 
 func (d *DateUS) UnmarshalText(data []byte) error {
