@@ -59,7 +59,7 @@ func main() {
 	}
 
 	// summary
-	fmt.Fprintf(os.Stderr, "total %.2f, debits %.2f, credits %.2f, ", debits+credits, debits, credits)
+	fmt.Fprintf(os.Stderr, "total %.2f, debits %.2f, credits %.2f", debits+credits, debits, credits)
 
 	// unpaid
 	if *opts.unpaid {
@@ -76,6 +76,8 @@ func main() {
 			}
 		}
 
-		fmt.Fprintf(os.Stderr, "unpaid %.2f\n", unpaid)
+		fmt.Fprintf(os.Stderr, ", unpaid %.2f", unpaid)
 	}
+
+	fmt.Fprintf(os.Stderr, "\n")
 }
