@@ -22,14 +22,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-	tw := tabwriter.NewWriter(os.Stdout, 0, 8, 0, '\t', 0)
+	tw := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', 0)
 	defer tw.Flush()
 
-	fmt.Fprint(tw, "account\tlast tx\tdays\tlast file\n")
-	fmt.Fprint(tw, "-------\t-------\t----\t---------\n")
+	fmt.Fprint(tw, "account\ttotal\tlast tx\tdays\tlast file\n")
+	fmt.Fprint(tw, "-------\t-----\t-------\t----\t---------\n")
 
 	var accounts []string
-	for name, _ := range config.Account {
+	for name := range config.Account {
 		accounts = append(accounts, name)
 	}
 
@@ -45,22 +45,31 @@ func main() {
 		}
 
 		// parse transactions
-		tx, err := util.ParseDir(acc, config.Pfin.Root)
+		txns, err := util.ParseDir(acc, config.Pfin.Root)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		sort.SliceStable(tx, func(i, j int) bool {
-			return tx[i].Date().Before(tx[j].Date())
+		// account total
+		var total float64
+		for _, tx := range txns {
+			total -= tx.Amount()
+		}
+
+		// find last tx
+		sort.SliceStable(txns, func(i, j int) bool {
+			return txns[i].Date().Before(txns[j].Date())
 		})
+		last := txns[len(txns)-1].Date()
 
 		// output
-		last := tx[len(tx)-1].Date()
 		fmt.Fprintf(
-			tw, "%s\t%s\t%d\t%s\n",
+			tw, "%s\t%s\t%s\t%d\t%s\n",
 			name,
+			util.FormatCents(total),
 			util.FormatDate(last),
 			int(time.Now().Sub(last).Hours())/24,
+			// assumes files are named alphabetically
 			filepath.Base(matches[len(matches)-1]),
 		)
 	}
