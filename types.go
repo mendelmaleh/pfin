@@ -55,7 +55,7 @@ func ParseConfig(path string) (config Config, err error) {
 			return config, err
 		}
 
-		path = filepath.Join(configpath, "pfin", "config.toml")
+		path = filepath.Join(configpath, "pfin", "statements", "config.toml")
 	}
 
 	data, err := os.ReadFile(path)
