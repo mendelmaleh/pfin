@@ -25,8 +25,8 @@ func main() {
 	tw := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', 0)
 	defer tw.Flush()
 
-	fmt.Fprint(tw, "account\ttotal\tlast tx\tdays\tlast file\n")
-	fmt.Fprint(tw, "-------\t-----\t-------\t----\t---------\n")
+	fmt.Fprint(tw, "bank\taccount\ttotal\tlast tx\tdays\tlast file\n")
+	fmt.Fprint(tw, "----\t-------\t-----\t-------\t----\t---------\n")
 
 	var accounts []string
 	for name := range config.Account {
@@ -34,6 +34,9 @@ func main() {
 	}
 
 	sort.Strings(accounts)
+	sort.SliceStable(accounts, func(i, j int) bool {
+		return config.Account[accounts[i]].Type < config.Account[accounts[j]].Type
+	})
 
 	for _, name := range accounts {
 		acc := config.Account[name]
@@ -64,7 +67,8 @@ func main() {
 
 		// output
 		fmt.Fprintf(
-			tw, "%s\t%s\t%s\t%d\t%s\n",
+			tw, "%s\t%s\t%s\t%s\t%d\t%s\n",
+			acc.Type,
 			name,
 			util.FormatCents(total),
 			util.FormatDate(last),
