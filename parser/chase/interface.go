@@ -25,9 +25,8 @@ func (tx Transaction) Category() string {
 	return tx.Raw.Category
 }
 
-// not implemented
 func (tx Transaction) Card() string {
-	return ""
+	return tx.Raw.Card
 }
 
 func (tx Transaction) User() string {

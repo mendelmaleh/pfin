@@ -13,6 +13,7 @@ type Fields struct {
 }
 
 type Raw struct {
+	Card            string      `csv:"Card"`
 	TransactionDate util.DateUS `csv:"Transaction Date"`
 	PostDate        util.DateUS `csv:"Post Date"`
 	Description     string      `csv:"Description"`
