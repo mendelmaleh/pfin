@@ -25,8 +25,8 @@ func main() {
 	tw := tabwriter.NewWriter(os.Stdout, 0, 8, 1, '\t', 0)
 	defer tw.Flush()
 
-	fmt.Fprint(tw, "bank\taccount\ttotal\tlast tx\tdays\tlast file\n")
-	fmt.Fprint(tw, "----\t-------\t-----\t-------\t----\t---------\n")
+	fmt.Fprint(tw, "bank\taccount\tbalance\tdebits\tcredits\tlast tx\tdays\tlast file\n")
+	fmt.Fprint(tw, "----\t-------\t-------\t------\t-------\t-------\t----\t---------\n")
 
 	var accounts []string
 	for name := range config.Account {
@@ -53,11 +53,17 @@ func main() {
 			log.Fatal(err)
 		}
 
-		// account total
-		var total float64
+		// account totals
+		var credits, debits float64
 		for _, tx := range txns {
-			total -= tx.Amount()
+			if a := tx.Amount(); a < 0 {
+				credits -= a
+			} else {
+				debits -= a
+			}
 		}
+
+		balance := credits + debits
 
 		// find last tx
 		sort.SliceStable(txns, func(i, j int) bool {
@@ -67,10 +73,12 @@ func main() {
 
 		// output
 		fmt.Fprintf(
-			tw, "%s\t%s\t%s\t%s\t%d\t%s\n",
+			tw, "%s\t%s\t%s\t%s\t%s\t%s\t%d\t%s\n",
 			acc.Type,
 			name,
-			util.FormatCents(total),
+			util.FormatCents(balance),
+			util.FormatCents(debits),
+			util.FormatCents(credits),
 			util.FormatDate(last),
 			int(time.Now().Sub(last).Hours())/24,
 			// assumes files are named alphabetically
