@@ -32,6 +32,11 @@ func (d DateISO) MarshalText() ([]byte, error) {
 	return []byte(d.String()), nil
 }
 
+func NewDateISO(s string) (d DateISO, err error) {
+	err = d.UnmarshalText([]byte(s))
+	return
+}
+
 type DateUS struct {
 	time.Time
 }
